@@ -1,0 +1,5 @@
+bucket         = "conversational-ai-terraform-state-YOUR_ACCOUNT_ID"
+key            = "dev/terraform.tfstate"
+region         = "ap-southeast-1"
+dynamodb_table = "terraform-state-lock"
+encrypt        = true

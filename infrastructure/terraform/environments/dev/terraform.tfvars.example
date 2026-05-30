@@ -1,0 +1,13 @@
+aws_region      = "ap-southeast-1"
+environment     = "dev"
+github_repository = "your-org/ConversationalAIAgentSaaS"
+
+cognito_callback_urls = ["http://localhost:3000/callback"]
+cognito_logout_urls   = ["http://localhost:3000"]
+cors_allow_origins    = ["http://localhost:3000"]
+
+enable_oauth = false
+waf_enabled  = false
+
+api_throttle_burst_limit = 100
+api_throttle_rate_limit  = 50

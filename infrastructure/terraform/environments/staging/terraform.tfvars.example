@@ -1,0 +1,6 @@
+aws_region    = "ap-southeast-1"
+environment   = "staging"
+waf_enabled   = true
+enable_oauth  = false
+
+# Update URLs for staging frontend when available

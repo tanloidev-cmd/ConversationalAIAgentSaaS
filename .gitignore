@@ -1,0 +1,33 @@
+node_modules/
+dist/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+!.env.example
+coverage/
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+# Per-environment Terraform config (copy from *.example; never commit secrets/account IDs)
+backend.hcl
+terraform.tfvars
+tfplan
+*.zip
+.DS_Store
+*.log
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Local development docs (not versioned)
+docs/
+IMPLEMENTATION_PLAN.md
+OVERVIEW.md
+CURSOR_RULES_AND_SKILLS.md
+.cursor/

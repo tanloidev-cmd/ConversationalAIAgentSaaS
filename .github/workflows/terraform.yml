@@ -1,0 +1,52 @@
+name: Terraform
+
+on:
+  pull_request:
+    paths:
+      - "infrastructure/terraform/**"
+      - "apps/api/dist/lambda/**"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infrastructure/terraform/environments/dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Build Lambda artifacts
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm -r build
+          pnpm --filter @conversational-ai/api bundle
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
+
+      - name: Terraform fmt check
+        run: terraform fmt -check -recursive ../..
+
+      - name: Terraform init (local backend for validate)
+        run: terraform init -backend=false
+
+      - name: Terraform validate
+        run: terraform validate
+
+      # Plan requires AWS credentials — optional on PR via secrets
+      - name: Terraform plan
+        if: vars.TERRAFORM_PLAN_ENABLED == 'true'
+        env:
+          AWS_REGION: ap-southeast-1
+        run: terraform plan -var-file=terraform.tfvars.example -input=false
+        continue-on-error: true

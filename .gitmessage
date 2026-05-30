@@ -1,0 +1,13 @@
+# <type>(<scope>): <subject>     |  header max 100 chars, no trailing period
+# |<----  Using a Maximum Of 100 Characters  ---->|
+
+# Types: feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
+# Example: feat(api): add tenant-scoped health endpoint
+
+# --- Body (optional) ---
+# Explain what and why. Each line max 100 characters; wrap across lines.
+
+# --- Footer (optional) ---
+# BREAKING CHANGE: description
+# Refs: #123
+# Do not add Co-authored-by or tool/IDE attribution trailers.

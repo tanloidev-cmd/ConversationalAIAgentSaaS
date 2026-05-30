@@ -1,0 +1,25 @@
+{
+  "name": "@conversational-ai/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/build-lambda.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx watch src/dev-server.ts",
+    "bundle": "node scripts/build-lambda.mjs"
+  },
+  "dependencies": {
+    "@conversational-ai/auth": "workspace:*",
+    "@conversational-ai/observability": "workspace:*",
+    "@conversational-ai/shared": "workspace:*",
+    "@sentry/aws-serverless": "^8.47.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.146",
+    "@types/node": "^22.10.2",
+    "esbuild": "^0.24.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

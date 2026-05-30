@@ -1,0 +1,6 @@
+{
+  "git.commitTemplate": ".gitmessage",
+  "git.inputValidation": true,
+  "git.inputValidationLength": 100,
+  "git.inputValidationSubjectLength": 72
+}
