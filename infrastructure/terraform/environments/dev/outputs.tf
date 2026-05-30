@@ -23,6 +23,22 @@ output "github_actions_role_arn" {
   value = module.security.github_actions_role_arn
 }
 
+output "secrets_backend" {
+  description = "Active secrets store for this environment"
+  value       = module.security.secrets_backend
+}
+
+output "sentry_config_name" {
+  description = "Set Sentry DSN here (SSM parameter or Secrets Manager secret name)"
+  value       = module.security.sentry_config_name
+}
+
+output "app_config_name" {
+  description = "App config secret/parameter name"
+  value       = module.security.app_config_name
+}
+
 output "cloudwatch_dashboard" {
-  value = module.observability.dashboard_name
+  description = "CloudWatch dashboard name when enabled; null in dev by default"
+  value       = module.observability.dashboard_name
 }

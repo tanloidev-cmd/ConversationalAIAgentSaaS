@@ -35,10 +35,12 @@ locals {
 module "security" {
   source = "../../modules/security"
 
-  name_prefix         = local.name_prefix
-  environment         = var.environment
-  tags                = local.common_tags
-  github_repository   = var.github_repository
+  name_prefix              = local.name_prefix
+  environment              = var.environment
+  tags                     = local.common_tags
+  github_repository        = var.github_repository
+  secrets_backend          = var.secrets_backend
+  use_customer_managed_kms = var.use_customer_managed_kms
 }
 
 module "cognito" {
@@ -73,11 +75,12 @@ module "api" {
 module "observability" {
   source = "../../modules/observability"
 
-  name_prefix           = local.name_prefix
-  api_id                = module.api.api_id
-  health_lambda_name    = module.api.health_lambda_name
-  health_log_group_name = module.api.health_log_group
-  tags                  = local.common_tags
+  name_prefix                 = local.name_prefix
+  api_id                      = module.api.api_id
+  health_lambda_name          = module.api.health_lambda_name
+  health_log_group_name       = module.api.health_log_group
+  enable_cloudwatch_dashboard = var.enable_cloudwatch_dashboard
+  tags                        = local.common_tags
 }
 
 module "waf" {

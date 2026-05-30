@@ -1,4 +1,6 @@
 resource "aws_cloudwatch_dashboard" "main" {
+  count = var.enable_cloudwatch_dashboard ? 1 : 0
+
   dashboard_name = "${var.name_prefix}-overview"
 
   dashboard_body = jsonencode({

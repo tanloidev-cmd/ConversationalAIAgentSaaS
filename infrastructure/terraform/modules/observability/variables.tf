@@ -18,3 +18,9 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "enable_cloudwatch_dashboard" {
+  type        = bool
+  description = "Create a CloudWatch overview dashboard (API Gateway + health Lambda metrics)"
+  default     = false
+}

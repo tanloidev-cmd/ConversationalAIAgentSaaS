@@ -1,4 +1,12 @@
+locals {
+  use_secrets_manager = var.secrets_backend == "secrets_manager"
+  use_ssm             = var.secrets_backend == "ssm"
+  use_cmk             = local.use_secrets_manager && var.use_customer_managed_kms
+}
+
 resource "aws_kms_key" "main" {
+  count = local.use_cmk ? 1 : 0
+
   description             = "${var.name_prefix} CMK"
   deletion_window_in_days = 30
   enable_key_rotation     = true
@@ -6,28 +14,61 @@ resource "aws_kms_key" "main" {
 }
 
 resource "aws_kms_alias" "main" {
+  count = local.use_cmk ? 1 : 0
+
   name          = "alias/${var.name_prefix}"
-  target_key_id = aws_kms_key.main.key_id
+  target_key_id = aws_kms_key.main[0].key_id
 }
 
 resource "aws_secretsmanager_secret" "sentry_dsn" {
+  count = local.use_secrets_manager ? 1 : 0
+
   name       = "${var.environment}/sentry-dsn"
-  kms_key_id = aws_kms_key.main.id
+  kms_key_id = local.use_cmk ? aws_kms_key.main[0].id : null
   tags       = var.tags
 }
 
 resource "aws_secretsmanager_secret" "app_config" {
+  count = local.use_secrets_manager ? 1 : 0
+
   name       = "${var.environment}/app-config"
-  kms_key_id = aws_kms_key.main.id
+  kms_key_id = local.use_cmk ? aws_kms_key.main[0].id : null
   tags       = var.tags
 }
 
 resource "aws_secretsmanager_secret_version" "app_config" {
-  secret_id = aws_secretsmanager_secret.app_config.id
+  count = local.use_secrets_manager ? 1 : 0
+
+  secret_id = aws_secretsmanager_secret.app_config[0].id
   secret_string = jsonencode({
     environment = var.environment
     version     = "0.1.0"
   })
+}
+
+resource "aws_ssm_parameter" "sentry_dsn" {
+  count = local.use_ssm ? 1 : 0
+
+  name  = "/${var.environment}/sentry-dsn"
+  type  = "SecureString"
+  value = "UNSET"
+  tags  = var.tags
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+resource "aws_ssm_parameter" "app_config" {
+  count = local.use_ssm ? 1 : 0
+
+  name = "/${var.environment}/app-config"
+  type = "SecureString"
+  value = jsonencode({
+    environment = var.environment
+    version     = "0.1.0"
+  })
+  tags = var.tags
 }
 
 data "aws_iam_policy_document" "lambda_assume" {
@@ -68,16 +109,47 @@ data "aws_iam_policy_document" "lambda_execution" {
     resources = ["*"]
   }
 
-  statement {
-    sid    = "SecretsRead"
-    effect = "Allow"
-    actions = [
-      "secretsmanager:GetSecretValue",
-    ]
-    resources = [
-      aws_secretsmanager_secret.sentry_dsn.arn,
-      aws_secretsmanager_secret.app_config.arn,
-    ]
+  dynamic "statement" {
+    for_each = local.use_secrets_manager ? [1] : []
+    content {
+      sid    = "SecretsRead"
+      effect = "Allow"
+      actions = [
+        "secretsmanager:GetSecretValue",
+      ]
+      resources = [
+        aws_secretsmanager_secret.sentry_dsn[0].arn,
+        aws_secretsmanager_secret.app_config[0].arn,
+      ]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = local.use_ssm ? [1] : []
+    content {
+      sid    = "SsmParametersRead"
+      effect = "Allow"
+      actions = [
+        "ssm:GetParameter",
+        "ssm:GetParameters",
+      ]
+      resources = [
+        aws_ssm_parameter.sentry_dsn[0].arn,
+        aws_ssm_parameter.app_config[0].arn,
+      ]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = local.use_cmk ? [1] : []
+    content {
+      sid    = "KmsDecryptSecrets"
+      effect = "Allow"
+      actions = [
+        "kms:Decrypt",
+      ]
+      resources = [aws_kms_key.main[0].arn]
+    }
   }
 }
 

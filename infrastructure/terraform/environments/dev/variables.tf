@@ -60,3 +60,26 @@ variable "waf_rate_limit" {
   type    = number
   default = 2000
 }
+
+variable "enable_cloudwatch_dashboard" {
+  type        = bool
+  description = "Create CloudWatch overview dashboard (off by default in dev to avoid cost)"
+  default     = false
+}
+
+variable "secrets_backend" {
+  type        = string
+  description = "secrets_manager or ssm (Parameter Store Standard SecureString, free tier storage)"
+  default     = "ssm"
+
+  validation {
+    condition     = contains(["secrets_manager", "ssm"], var.secrets_backend)
+    error_message = "secrets_backend must be secrets_manager or ssm"
+  }
+}
+
+variable "use_customer_managed_kms" {
+  type        = bool
+  description = "Use a dedicated CMK for Secrets Manager (~$1/mo); false uses the AWS-managed Secrets Manager key"
+  default     = false
+}
