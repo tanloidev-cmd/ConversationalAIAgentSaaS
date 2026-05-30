@@ -32,4 +32,3 @@ chore: bootstrap monorepo with Terraform and CI
 ## IDE setup
 
 - Git commit template: `.gitmessage` (configured in `.vscode/settings.json`)
-- Husky `prepare-commit-msg` strips unwanted attribution trailers before commit
