@@ -83,3 +83,13 @@ variable "use_customer_managed_kms" {
   description = "Use a dedicated CMK for Secrets Manager (~$1/mo); false uses the AWS-managed Secrets Manager key"
   default     = false
 }
+
+variable "bedrock_model_id_light" {
+  type    = string
+  default = "amazon.nova-micro-v1:0"
+}
+
+variable "bedrock_model_id_reasoning" {
+  type    = string
+  default = "anthropic.claude-3-5-haiku-20241022-v1:0"
+}

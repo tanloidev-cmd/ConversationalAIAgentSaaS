@@ -50,7 +50,7 @@ export default async function DashboardPage() {
         <a className="button" href={logoutUrl}>
           Sign out
         </a>{" "}
-        <Link href="/">Home</Link>
+        <Link href="/">Home</Link> · <Link href="/chat">Chat</Link>
       </p>
 
       <div className="card">

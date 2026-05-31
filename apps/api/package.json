@@ -10,10 +10,15 @@
     "bundle": "node scripts/build-lambda.mjs"
   },
   "dependencies": {
+    "@aws-sdk/client-sfn": "^3.758.0",
+    "@conversational-ai/ai-runtime": "workspace:*",
     "@conversational-ai/auth": "workspace:*",
     "@conversational-ai/observability": "workspace:*",
+    "@conversational-ai/session-store": "workspace:*",
     "@conversational-ai/shared": "workspace:*",
-    "@sentry/aws-serverless": "^8.47.0"
+    "@conversational-ai/tool-registry": "workspace:*",
+    "@sentry/aws-serverless": "^8.47.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.146",

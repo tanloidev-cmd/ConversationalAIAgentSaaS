@@ -151,6 +151,37 @@ data "aws_iam_policy_document" "lambda_execution" {
       resources = [aws_kms_key.main[0].arn]
     }
   }
+
+  dynamic "statement" {
+    for_each = var.sessions_table_arn != "" ? [1] : []
+    content {
+      sid    = "DynamoDBSessions"
+      effect = "Allow"
+      actions = [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:UpdateItem",
+      ]
+      resources = [
+        var.sessions_table_arn,
+        "${var.sessions_table_arn}/index/*",
+      ]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = length(var.bedrock_model_arns) > 0 ? [1] : []
+    content {
+      sid    = "BedrockInvoke"
+      effect = "Allow"
+      actions = [
+        "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream",
+      ]
+      resources = var.bedrock_model_arns
+    }
+  }
 }
 
 resource "aws_iam_role_policy" "lambda_execution" {

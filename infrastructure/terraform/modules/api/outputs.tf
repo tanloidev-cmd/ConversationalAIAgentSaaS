@@ -17,3 +17,11 @@ output "health_log_group" {
 output "api_stage_arn" {
   value = aws_apigatewayv2_stage.default.arn
 }
+
+output "chat_lambda_arn" {
+  value = try(aws_lambda_function.chat[0].arn, null)
+}
+
+output "workflow_runner_lambda_arn" {
+  value = try(aws_lambda_function.workflow_runner[0].arn, null)
+}

@@ -8,6 +8,14 @@ Infrastructure foundation scaffold: monorepo, local Docker, Terraform modules, C
 
 **Deploy to AWS:** follow [docs/runbooks/phase1-deploy-handoff.md](docs/runbooks/phase1-deploy-handoff.md) (manual, approval required).
 
+## Phase 2 status
+
+Core AI runtime (local): `packages/ai-runtime`, `packages/tool-registry`, `packages/session-store`, chat/session API routes, SSE stream, Step Functions module, web `/chat` UI.
+
+- Architecture: [docs/architecture/phase2-ai-runtime.md](docs/architecture/phase2-ai-runtime.md)
+- API: [docs/api/v1-chat.md](docs/api/v1-chat.md)
+- Local: `pnpm dynamodb:setup` then `pnpm --filter @conversational-ai/api dev` (see `.env.example`)
+
 ## Quick start (local)
 
 ```bash

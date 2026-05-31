@@ -33,3 +33,15 @@ variable "use_customer_managed_kms" {
   description = "When secrets_backend is secrets_manager, encrypt with a dedicated CMK (~$1/mo); otherwise use the AWS-managed Secrets Manager key"
   default     = false
 }
+
+variable "sessions_table_arn" {
+  type        = string
+  description = "DynamoDB sessions table ARN for Lambda access"
+  default     = ""
+}
+
+variable "bedrock_model_arns" {
+  type        = list(string)
+  description = "Bedrock foundation model ARNs allowed for InvokeModel/Converse"
+  default     = []
+}
