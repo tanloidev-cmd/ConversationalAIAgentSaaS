@@ -1,3 +1,4 @@
+import "./lib/env.js";
 import { createServer } from "node:http";
 import type { APIGatewayProxyEventV2 } from "aws-lambda";
 import { handleHealthLocal } from "./handlers/healthHandler.js";
@@ -52,6 +53,13 @@ function buildEvent(
   return patchEventWithDevJwt(base);
 }
 
+function addCorsHeaders(res: import("node:http").ServerResponse): void {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Max-Age", "86400");
+}
+
 async function sendLambdaResult(
   res: import("node:http").ServerResponse,
   result: Awaited<ReturnType<typeof meHandler>>,
@@ -68,6 +76,7 @@ async function sendLambdaResult(
     typeof result === "object" && result !== null && "body" in result
       ? (result.body as string)
       : "{}";
+  addCorsHeaders(res);
   for (const [k, v] of Object.entries(headers)) {
     res.setHeader(k, String(v));
   }
@@ -86,6 +95,14 @@ function readBody(req: import("node:http").IncomingMessage): Promise<string> {
 
 const server = createServer(async (req, res) => {
   const path = req.url?.split("?")[0] ?? "/";
+
+  // Handle CORS preflight requests
+  if (req.method === "OPTIONS") {
+    addCorsHeaders(res);
+    res.writeHead(204);
+    res.end();
+    return;
+  }
 
   if (path === "/v1/health" && req.method === "GET") {
     await sendLambdaResult(res, await handleHealthLocal());
@@ -117,11 +134,13 @@ const server = createServer(async (req, res) => {
       return;
     }
   } catch (err) {
+    addCorsHeaders(res);
     res.writeHead(500, { "content-type": "application/json" });
     res.end(JSON.stringify({ code: "INTERNAL_ERROR", message: String(err) }));
     return;
   }
 
+  addCorsHeaders(res);
   res.writeHead(404, { "content-type": "application/json" });
   res.end(JSON.stringify({ code: "NOT_FOUND", message: "Not found" }));
 });

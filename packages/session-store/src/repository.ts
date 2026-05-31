@@ -37,10 +37,16 @@ export class SessionRepository {
   private readonly tableName: string;
 
   constructor(config: SessionStoreConfig) {
+    const endpoint = config.endpoint ?? process.env.DYNAMODB_ENDPOINT;
+    const useLocalCredentials = Boolean(
+      endpoint && /https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?/.test(endpoint),
+    );
     const client = new DynamoDBClient({
       region: config.region ?? process.env.AWS_REGION ?? "ap-southeast-1",
-      endpoint: config.endpoint ?? process.env.DYNAMODB_ENDPOINT,
-      credentials: config.endpoint ? { accessKeyId: "local", secretAccessKey: "local" } : undefined,
+      endpoint,
+      credentials: useLocalCredentials
+        ? { accessKeyId: "local", secretAccessKey: "local" }
+        : undefined,
     });
     this.doc = DynamoDBDocumentClient.from(client, {
       marshallOptions: { removeUndefinedValues: true },

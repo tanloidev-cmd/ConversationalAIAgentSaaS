@@ -8,7 +8,13 @@ import { createSessionRepository } from "@conversational-ai/session-store";
 import type { AuthContext } from "../lib/jwt-context.js";
 import { startAgentWorkflow } from "./workflowService.js";
 
-const repo = createSessionRepository();
+let repo: ReturnType<typeof createSessionRepository> | null = null;
+function getRepo() {
+  if (!repo) {
+    repo = createSessionRepository();
+  }
+  return repo;
+}
 
 function getModelConfig() {
   return {
@@ -25,7 +31,7 @@ export async function postMessage(
   options?: { idempotencyKey?: string },
 ): Promise<PostMessageResponse> {
   const parsed = postMessageRequestSchema.parse(body);
-  const meta = await repo.getSession(auth.tenantId, sessionId);
+  const meta = await getRepo().getSession(auth.tenantId, sessionId);
   if (!meta || meta.userId !== auth.userId) {
     throw new AppError("NOT_FOUND", "Session not found", { statusCode: 404 });
   }
@@ -42,12 +48,12 @@ export async function postMessage(
       content: `Workflow started (${executionArn}). Results will be available when the run completes.`,
       createdAt: new Date().toISOString(),
     };
-    await repo.appendMessage({
+    await getRepo().appendMessage({
       tenantId: auth.tenantId,
       sessionId,
       message: { role: "user", content: parsed.content },
     });
-    await repo.appendMessage({
+    await getRepo().appendMessage({
       tenantId: auth.tenantId,
       sessionId,
       message: assistantMessage,
@@ -59,8 +65,8 @@ export async function postMessage(
     });
   }
 
-  const history = await repo.listMessages(auth.tenantId, sessionId);
-  await repo.appendMessage({
+  const history = await getRepo().listMessages(auth.tenantId, sessionId);
+  await getRepo().appendMessage({
     tenantId: auth.tenantId,
     sessionId,
     message: { role: "user", content: parsed.content },
@@ -85,7 +91,7 @@ export async function postMessage(
     createdAt: new Date().toISOString(),
   };
 
-  await repo.appendMessage({
+  await getRepo().appendMessage({
     tenantId: auth.tenantId,
     sessionId,
     message: assistantMessage,
@@ -110,13 +116,13 @@ export async function postMessageStream(
   handlers: StreamHandlers,
 ): Promise<void> {
   const parsed = postMessageRequestSchema.parse(body);
-  const meta = await repo.getSession(auth.tenantId, sessionId);
+  const meta = await getRepo().getSession(auth.tenantId, sessionId);
   if (!meta || meta.userId !== auth.userId) {
     throw new AppError("NOT_FOUND", "Session not found", { statusCode: 404 });
   }
 
-  const history = await repo.listMessages(auth.tenantId, sessionId);
-  await repo.appendMessage({
+  const history = await getRepo().listMessages(auth.tenantId, sessionId);
+  await getRepo().appendMessage({
     tenantId: auth.tenantId,
     sessionId,
     message: { role: "user", content: parsed.content },
@@ -163,7 +169,7 @@ export async function postMessageStream(
     content: result.assistantMessage,
     createdAt: new Date().toISOString(),
   };
-  await repo.appendMessage({
+  await getRepo().appendMessage({
     tenantId: auth.tenantId,
     sessionId,
     message: assistantMessage,
